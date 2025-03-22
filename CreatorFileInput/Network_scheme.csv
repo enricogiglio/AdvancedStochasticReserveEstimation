@@ -1,0 +1,5 @@
+Name,Type_of_component,P_nom-avlb,prob_trip,std_dev,Committable,n_mod,resol_explor_P_avlb,marginal_cost,capital_cost,carrier,n_min,n_comb,Bus0,norm stand-by cost,ctrb:FCR,ctrb:aFRR,ctrb:mFRR,ctrb:RR,efficiency
+Generator-Diesel-cluster1,Generator,4,1.4e-05,0,True,2,0,300,58986.70111633454,Diesel,0,3,2,65,1,1,1,1,
+Generator-Solar PV-cluster1,Generator,0.5,1.1e-05,0.08,False,20,0.3333333333333333,0,74930.82632174139,Solar PV,0,3,20,,,,,,
+Store_Li-ion,Store,0.5,9e-06,0,False,40,0,0,32982.33011129194,Li-ion,0,3,40,,1,1,1,1,0.999875
+Load,Load,4,0,0.1,False,1,0.25,0,0,Load,0,1,1,65,,,,,
