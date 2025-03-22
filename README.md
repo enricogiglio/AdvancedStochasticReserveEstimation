@@ -11,5 +11,13 @@ The repository includes Python scripts for:
 - Calculating reserve needs (FCR, aFRR, mFRR, RR) using a stochastic approach.
 - Building reserve allocation strategies for different network configurations.
 
+## Repository Structure
+- `CreatorFileInputNetwork.py`: It creates the network over which the Sobol sequence is created 
+- `CreatorCombinationsSobol.py`: It creates the Sobol sequence over which Monte Carlo simulation for stochastic power reserve estimation is performed. 
+- `StochasticReserveSizing.py`: Main script containing functions for reserve estimation.
+
+## Getting Started
+
+
 # Authors
 These codes were developed in collaboration with @davide-f and @edopasta
