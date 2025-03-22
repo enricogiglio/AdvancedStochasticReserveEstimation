@@ -17,6 +17,18 @@ The repository includes Python scripts for:
 - `StochasticReserveSizing.py`: Main script containing functions for reserve estimation.
 
 ## Getting Started
+### Prerequisites
+- Required Python packages: pypsa, numpy, pandas, sklearn, matplotlib
+
+### Usage
+- Create your network `CreatorFileInputNetwork.py` at it will be saved in folder `CreatorFileInput`
+- Create the Sobol sequence with `CreatorCombinationsSobol.py`. The Sobol sequence is saved in the `ModelloStocastico` folder. In the script, you must select:
+	a) the maximum residual demand variation to be considered
+	b) the length of the Sobol sequence (number of configurations).
+- Run the main script
+```
+ python StochasticReserveSizing.py
+```
 
 
 # Authors
