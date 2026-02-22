@@ -138,12 +138,11 @@ def tripping(yr,network):
     
     repeated_trip=np.repeat(network['prob_trip'][elem_trip].values, network['n_mod'][elem_trip].values)
     trip_val_matrix=np.transpose(np.tile(repeated_trip, (tMC_par,1)))
-    trip_index = {i: [] for i in range(n_elem_trip)}#+1)} ##CONTROLLA LA FUNZIONE SE LAVORA BENE #c'era questo +1 che secondoo me non serve!!!!
+    trip_index = {i: [] for i in range(n_elem_trip)}
     for yr_indx in range(int(tMC/tMC_par)):
         tMC_past=yr_indx*tMC_par
         trip_prob=np.random.rand(n_elem_trip,tMC_par)
         trip_binary=trip_prob<trip_val_matrix
-        #trip_binary=trip_binary.ravel()
         trip_index_current=np.where(trip_binary>0)
         
         for idx0, idx1 in zip(trip_index_current[0], trip_index_current[1]):
@@ -222,7 +221,6 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
                 all_idxs_tripped=np.repeat(trip_index_list, t_trip) + shift_vec
                 
                 vector_counts = np.bincount(all_idxs_tripped, minlength=tMC)[0:tMC]
-                #trip_imb_t[all_idxs_tripped[all_idxs_tripped<tMC]] += p_nom.iloc[g]
                 trip_imb_t += vector_counts * p_nom.iloc[g]
             g_start=g_end
     
@@ -232,7 +230,6 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
     i_proccess=10
     RAM_avlb=30*1024**3/i_proccess
     n_elem_lim = int(RAM_avlb/15/tMC)  # definiscilo tramite RAM
-    #n_elem_lim=10
     t_frr = 15
     n_quart = int(tMC / t_frr)
     
@@ -252,8 +249,8 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
         ramp_matrix = ramp_sequence[:tMC].reshape(1, -1) * current_ramp_val.reshape(-1, 1)
         
         df_t = np.random.normal(np.zeros((len(current_block), 1)), current_block.values.reshape((len(current_block), 1)), (len(current_block), tMC))
-        tot_imb_t = df_t + trip_imb_t + ramp_matrix #ramp_sequence[0:tMC]
-        tot_imb_norm_t = df_t + ramp_matrix #ramp_sequence[0:tMC]
+        tot_imb_t = df_t + trip_imb_t + ramp_matrix
+        tot_imb_norm_t = df_t + ramp_matrix
         
         #####################################################################
         
@@ -263,8 +260,7 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
         mean_imb_t = tot_imb_t.reshape(-1, t_frr).sum(1) / t_frr
         mean_imb_t = mean_imb_t.reshape(len(current_block), int(n_quart))
         tot_imb_frr_t = tot_imb_t - np.repeat(mean_imb_t, t_frr, axis=1)
-        #tot_imb_frr_t = copy.deepcopy(mean_imb_t)
-    
+            
         aFRR_block_up = np.percentile(tot_imb_frr_t, quantile_afrr_perc * 100 * np.ones(len(current_block)),axis=1)[0]
         aFRR_block_dw = np.percentile(tot_imb_frr_t, (1-quantile_afrr_perc) * 100 * np.ones(len(current_block)),axis=1)[0]
         
@@ -364,15 +360,11 @@ def reserve_function_builder(network, yr, quantile_fcr_perc, quantile_afrr_perc,
                 
     else: 
         for i in range(len(trip_comb_indx)):
-            #if i==len(trip_comb_indx)-1:
-            #    print('ciao')
-            #i=3
             idx=trip_comb_indx[i]
             if i==len(trip_comb_indx)-1:
                 idx_end=len(combinations_df)
             else: 
                 idx_end=trip_comb_indx[i+1]
-            #print(i, ' ', len(sigma_df[idx:idx_end]))
             f_reserve.iloc[idx:idx_end,:]=evaluate_reserve(idx, trip_comb_indx, tripping_event, combinations_df, yr, network, quantile_fcr_perc, quantile_afrr_perc, quantile_mfrr_perc, quantile_rr_perc, sigma_df.iloc[idx:idx_end], combinations_df.Ramp.iloc[idx:idx_end])
     
     return f_reserve, combinations_df
@@ -384,10 +376,7 @@ def evaluate_reserve_single_case(args):
 
 
 def sigma_df_eval(combinations_n_mod, network, p_var):
-    
-    
     #Delta f
-    
     #element which cause frequency imbalance
     elem_df=df['std_dev']>0
     n_elem_df=(elem_df*network['n_mod']).sum()
@@ -495,7 +484,6 @@ f_reserve.to_csv(risultati_reserve_output_round_file_path , index=False)
 
 ##########################################################
 if ActualRound >1:
-#if os.path.exists(risultati_combination_TOT_file_path) and os.path.exists(risultati_reserve_output_TOT_file_path):
     combinations_df_TOT = pd.concat([combinations_df_TOT, combinations_df], ignore_index=True)
     f_reserve_TOT = pd.concat([f_reserve_TOT, f_reserve], ignore_index=True)
 else:
@@ -514,3 +502,4 @@ downward_col = [col for col in f_reserve_TOT.columns if "_UP" not in col]
 f_reserve_TOT_DW = copy.deepcopy(f_reserve_TOT.loc[:,downward_col])
 f_reserve_TOT_DW.columns = [col.replace("_DW", "") for col in downward_col]
 f_reserve_TOT_DW.to_csv(risultati_reserve_output_TOT_DW_file_path , index=False)
+
