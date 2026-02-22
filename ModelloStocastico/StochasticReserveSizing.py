@@ -113,7 +113,6 @@ def generate_saw_sequence(tMC, DDM):
     ramp_value = DDM/8
     return ramp_value * saw_sequence
 
-# Esempio di utilizzo
 tMC_max = 192 * 365 * 24 * 60
 
 DDM= 1
@@ -141,7 +140,6 @@ def tripping(yr,network):
     trip_val_matrix=np.transpose(np.tile(repeated_trip, (tMC_par,1)))
     trip_index = {i: [] for i in range(n_elem_trip)}#+1)} ##CONTROLLA LA FUNZIONE SE LAVORA BENE #c'era questo +1 che secondoo me non serve!!!!
     for yr_indx in range(int(tMC/tMC_par)):
-        #print(str(yr_indx)+' su '+ str(int(tMC/tMC_par)))
         tMC_past=yr_indx*tMC_par
         trip_prob=np.random.rand(n_elem_trip,tMC_par)
         trip_binary=trip_prob<trip_val_matrix
@@ -215,9 +213,7 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
         #t_trip is the time a generator remains off after being tripped.
         t_trip=30
         g_start=0
-        #####################CASO ISOLA ATTENZIONARE PERCHè CONSIDERA LA P_EROGATED TRANNE CHE PER P=0 DOVE METTE 
-        #CONTROLLA LA FUNZIONE SE LAVORA BENE spero di aver risolto sotto
-        #p_nom.loc[p_nom==0]=100
+        
         for g in range(len(p_nom)):
             g_end=g_start+n_mod.iloc[g]
             trip_index_list=list(chain.from_iterable(trip_index[g_start:g_end]))
@@ -233,7 +229,6 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
     quartile_trip=np.percentile(trip_imb_t, 99.7)
     EA_trip=trip_imb_t.sum()/yr/60
     
-    #opzione 2 bis
     i_proccess=10
     RAM_avlb=30*1024**3/i_proccess
     n_elem_lim = int(RAM_avlb/15/tMC)  # definiscilo tramite RAM
@@ -251,14 +246,9 @@ def reserve_dimensioning(yr,network,quantile_fcr_perc, quantile_afrr_perc, quant
     RR_dw = np.array([])
 
     for i in range(0, len(sigma_df_selected), n_elem_lim):
-        # Estrai il blocco corrente di sigma_df_selected utilizzando .loc
         end_i=min(i + n_elem_lim, len(sigma_df_selected))
         current_block = sigma_df_selected.iloc[i:end_i]
         current_ramp_val=ramp_val.iloc[i:end_i].values
-        #CONTROLLA LA FUNZIONE SE LAVORA BENE
-        #spero di star conteggiando bene la riserva
-        #ramp_matrix = np.outer(current_ramp_val, ramp_sequence[:tMC])
-        #ramp_matrix=error_5min_norm[0:tMC].reshape(1, -1) * current_ramp_val.reshape(-1, 1)
         ramp_matrix = ramp_sequence[:tMC].reshape(1, -1) * current_ramp_val.reshape(-1, 1)
         
         df_t = np.random.normal(np.zeros((len(current_block), 1)), current_block.values.reshape((len(current_block), 1)), (len(current_block), tMC))
@@ -359,8 +349,6 @@ def reserve_function_builder(network, yr, quantile_fcr_perc, quantile_afrr_perc,
     
     network.loc[:,'n_mod_max'] = copy.deepcopy(network.loc[:,'n_mod'])
     
-    print('tripping matrix done')
-    
     parallel = parallel_setting
     if parallel==True:
         if __name__ == '__main__':
@@ -416,9 +404,6 @@ def sigma_df_eval(combinations_n_mod, network, p_var):
     std_dev_matrix_df=np.tile(network['std_dev'][elem_df].values, (len(combinations_n_mod), 1))
     
     intersection_indx=p_var.columns.intersection(n_mod.columns)
-    #CONTROLLA LA FUNZIONE SE LAVORA BENE
-    #1) Load: il carico elettrico è moltipliato per solo p_ref??? indipendentemente dal valore del load?
-    #std_dev_matrix_tot=std_dev_matrix_df**2*p_var.loc[:,intersection_indx]*n_mod*P_ref  --> equazione prec utilizzata che ora silenzio avendo cambiato modo 
     std_dev_matrix_tot=std_dev_matrix_df**2*p_var.loc[:,intersection_indx]*P_ref
     std_dev_vect=np.sqrt(((std_dev_matrix_tot)).sum(1))
     
@@ -509,8 +494,6 @@ combinations_df.to_csv(risultati_combination_round_file_path, index=False)
 f_reserve.to_csv(risultati_reserve_output_round_file_path , index=False)
 
 ##########################################################
-#Save risultati generali
-
 if ActualRound >1:
 #if os.path.exists(risultati_combination_TOT_file_path) and os.path.exists(risultati_reserve_output_TOT_file_path):
     combinations_df_TOT = pd.concat([combinations_df_TOT, combinations_df], ignore_index=True)
@@ -531,8 +514,3 @@ downward_col = [col for col in f_reserve_TOT.columns if "_UP" not in col]
 f_reserve_TOT_DW = copy.deepcopy(f_reserve_TOT.loc[:,downward_col])
 f_reserve_TOT_DW.columns = [col.replace("_DW", "") for col in downward_col]
 f_reserve_TOT_DW.to_csv(risultati_reserve_output_TOT_DW_file_path , index=False)
-
-
-
-
-
